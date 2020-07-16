@@ -1,12 +1,13 @@
 package com.customlist;
 
 import java.util.Iterator;
+import java.util.stream.IntStream;
 
-public class CustomArrayList<T> implements CustomList<T>, Iterator<T> {
+public class CustomArrayList<T> implements CustomList<T>, Iterable<T> {
 
     private int capacity;
     private int currentSize;
-    private Object[] array;
+    private T[] array;
 
     public CustomArrayList() {
         this(2);
@@ -15,20 +16,24 @@ public class CustomArrayList<T> implements CustomList<T>, Iterator<T> {
     public CustomArrayList(int capacity) {
         this.capacity = capacity;
         this.currentSize = 0;
-        this.array = new Object[capacity];
+        this.array =(T[]) new Object[capacity];
     }
 
     @Override
     public void add(T data) {
-        if(capacity >= currentSize) {
-            array = resize(array);
+        if(capacity <= currentSize) {
+            expand();
         }
         array[currentSize++] = data;
     }
 
-    private Object[] resize(Object[] array) {
+    private void expand() {
         this.capacity *= 2;
-        Object[] temp = new Object[capacity];
+        array = createArray(array);
+    }
+
+    private T[] createArray(T[] array) {
+        T[] temp =(T[]) new Object[capacity];
         for(int i=0;i<currentSize;i++) {
             temp[i] = array[i];
         }
@@ -37,7 +42,7 @@ public class CustomArrayList<T> implements CustomList<T>, Iterator<T> {
 
     @Override
     public T get(int index) {
-        return (T)array[index];
+        return array[index];
     }
 
     @Override
@@ -47,7 +52,14 @@ public class CustomArrayList<T> implements CustomList<T>, Iterator<T> {
 
     @Override
     public void insert(int index, T data) {
-
+        if(currentSize >= capacity) {
+            expand();
+        }
+        for(int i=currentSize; i>=index; i--) {
+            array[i] = array[i-1];
+        }
+        array[index] = data;
+        currentSize++;
     }
 
     @Override
@@ -62,7 +74,35 @@ public class CustomArrayList<T> implements CustomList<T>, Iterator<T> {
 
     @Override
     public T remove(int index) {
-        return null;
+        if(index < currentSize) {
+            T temp = array[index];
+            for(int i=index; i<currentSize-1;i++) {
+                array[i] = array[i+1];
+            }
+            currentSize--;
+            if(currentSize<= capacity/2) {
+                shrink();
+            }
+            return temp;
+        } else {
+            return null;
+        }
+    }
+
+    // First occurrence will be removed left to right.
+    @Override
+    public boolean remove(Object data) {
+        for(int i=0;i<currentSize;i++) {
+            if(array[i].equals(data)) {
+                return remove(i) != null;
+            }
+        }
+        return false;
+    }
+
+    private void shrink() {
+        this.capacity /= 2;
+        array = createArray(array);
     }
 
     @Override
@@ -71,17 +111,28 @@ public class CustomArrayList<T> implements CustomList<T>, Iterator<T> {
     }
 
     @Override
-    public boolean hasNext() {
-        return false;
-    }
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            int index = 0;
+            @Override
+            public boolean hasNext() {
+                return index < currentSize;
+            }
 
-    @Override
-    public T next() {
-        return null;
+            @Override
+            public T next() {
+                return array[index++];
+            }
+        };
     }
 
     @Override
     public String toString() {
-        return null;
+//        return Arrays.toString(array);
+        return IntStream.range(0, currentSize)
+                .filter(i -> array[i]!=null)
+                .mapToObj(i -> array[i].toString())
+                .reduce((i, j) -> i+", "+j)
+                .get();
     }
 }

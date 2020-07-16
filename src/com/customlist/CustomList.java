@@ -7,5 +7,6 @@ public interface CustomList<T> {
     void insert(int index, T data);
     boolean contains(T data);
     T remove(int index);
+    boolean remove(T data);
     int len();
 }
