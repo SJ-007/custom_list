@@ -1,6 +1,6 @@
 package com.customlist;
 
-public interface CustomList<T> {
+public interface CustomList<T> extends Iterable<T> {
     void add(T data);
     T get(int index);
     void update(int index, T data);

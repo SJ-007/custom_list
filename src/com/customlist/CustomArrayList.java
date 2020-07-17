@@ -3,7 +3,7 @@ package com.customlist;
 import java.util.Iterator;
 import java.util.stream.IntStream;
 
-public class CustomArrayList<T> implements CustomList<T>, Iterable<T> {
+public class CustomArrayList<T> implements CustomList<T> {
 
     private int capacity;
     private int currentSize;
@@ -91,7 +91,7 @@ public class CustomArrayList<T> implements CustomList<T>, Iterable<T> {
 
     // First occurrence will be removed left to right.
     @Override
-    public boolean remove(Object data) {
+    public boolean remove(T data) {
         for(int i=0;i<currentSize;i++) {
             if(array[i].equals(data)) {
                 return remove(i) != null;
